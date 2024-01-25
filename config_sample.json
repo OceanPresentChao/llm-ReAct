@@ -1,0 +1,4 @@
+{
+  "apiKey": "your openai key",
+  "model": "gpt-35-turbo-16k"
+}

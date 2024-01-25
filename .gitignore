@@ -1,3 +1,4 @@
 dist/
 node_modules/
-pnpm-lock.yaml
+config.json
+.DS_Store

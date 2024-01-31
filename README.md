@@ -5,7 +5,7 @@
 3. 简单的内存短期记忆
 
 ![](./doc/media/1.PNG)
-![](./doc/media/2.png)
+![](./doc/media/4.png)
 
 ## 项目结构
 - src
@@ -20,3 +20,5 @@
   - model：使用的openai的模型名
 
 ## 教程
+
+- [手把手从零教你搭建Agent框架](./doc/手把手教你从零搭建Agent框架.md)

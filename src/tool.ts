@@ -1,4 +1,4 @@
-export abstract class StructuredTool {
+export abstract class StructuredTool<T extends Record<string, any> = Record<string, any>> {
   name: string
   description: string
   constructor(name: string, description: string) {
@@ -6,10 +6,20 @@ export abstract class StructuredTool {
     this.description = description
   }
 
-  abstract call(arg: string, config?: Record<string, any>): Promise<string>
+  abstract run(inputs: T): Promise<string>
+
+  call(input: string): Promise<string> {
+    try {
+      const inputs = JSON.parse(input)
+      return this.run(inputs)
+    }
+    catch (e) {
+      throw new Error(`${input} can not be parsed as JSON`)
+    }
+  }
 
   getSchema(): string {
-    return `${this.declaration} | ${this.name} | ${this.description}`
+    return `${this.name} | ${this.description} | ${this.declaration}`
   }
 
   abstract get declaration(): string

@@ -4,16 +4,17 @@ import type { promptInputs } from './type'
 
 interface AzureLLMParams {
   apiKey: string
-  model: string
+  modelName: string
+  model?: OpenAI
 }
 
 export class AzureLLM {
   private _model: OpenAI
   private _modelName: string
   constructor(options: AzureLLMParams) {
-    const { apiKey, model } = options
-    this._modelName = model
-    this._model = new OpenAI({
+    const { apiKey, model, modelName } = options
+    this._modelName = modelName
+    this._model = model || new OpenAI({
       apiKey,
       baseURL: 'https://search.bytedance.net/gpt/openapi/online/v2/crawl/openai/deployments',
       defaultQuery: { 'api-version': '2023-03-15-preview' },

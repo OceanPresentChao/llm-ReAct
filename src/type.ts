@@ -16,4 +16,6 @@ export interface AgentStep {
 
 export type promptInputs = Record<string, any> & {
   input: string
+  tools?: string
+  tool_names?: string
 }

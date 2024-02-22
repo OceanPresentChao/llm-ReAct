@@ -43,7 +43,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "openai": "^4.25.0"
+    "openai": "4.25.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "1.0.0",

@@ -4,18 +4,15 @@ import type { AgentAction, AgentFinish, AgentStep, promptInputs } from './type'
 
 interface LLMSingleActionAgentParams {
   llm: AzureLLM
-  tools?: StructuredTool[]
   stop?: string[]
 }
 
 export class LLMSingleActionAgent {
   llm: AzureLLM
-  tools: StructuredTool[]
   stop: string[]
   private _prompt: string = '{input}'
-  constructor({ llm, tools = [], stop = [] }: LLMSingleActionAgentParams) {
+  constructor({ llm, stop = [] }: LLMSingleActionAgentParams) {
     this.llm = llm
-    this.tools = tools
     if (stop.length > 4)
       throw new Error('up to 4 stop sequences')
     this.stop = stop
@@ -40,11 +37,6 @@ export class LLMSingleActionAgent {
     return 'Observation: '
   }
 
-  addTool(tools: StructuredTool | StructuredTool[]) {
-    const _tools = Array.isArray(tools) ? tools : [tools]
-    this.tools.push(..._tools)
-  }
-
   addStop(stop: string | string[]) {
     const _stops = Array.isArray(stop) ? stop : [stop]
     this.stop.push(..._stops)
@@ -52,12 +44,9 @@ export class LLMSingleActionAgent {
 
   async plan(steps: AgentStep[], inputs: promptInputs): Promise<AgentAction | AgentFinish> {
     const thoughts = this.constructScratchPad(steps)
-    const tools = this.constructTools()
-    const toolNames = this.constructToolNames()
+
     const newInputs = {
       ...inputs,
-      tools,
-      tool_names: toolNames,
       agent_scratchpad: thoughts,
     }
     const output = await this.llm.completeWithPrompt(this._prompt, newInputs, this.stop)
@@ -74,8 +63,7 @@ export class LLMSingleActionAgent {
     if (actionMatch) {
       const action = actionMatch[1]
       const actionInput = actionMatch[2]
-      const toolInput = actionInput.trim().replace(/"/g, '')
-
+      const toolInput = actionInput.trim()
       return {
         tool: action,
         toolInput,
@@ -103,23 +91,8 @@ export class LLMSingleActionAgent {
   ): string | string[] {
     return steps.reduce(
       (thoughts, { action, observation }) =>
-        thoughts
-          + [
-            action.log,
-            `${this.observationPrefix}${observation}`
-          ].join('\n'),
+        `${thoughts}\n${action.log}${this.observationPrefix}${observation}\n`,
       '',
     )
-  }
-
-  /**
-   * Construct tools description for prompt template
-   */
-  constructTools(): string {
-    return this.tools.reduce((pre, cur, idx) => `${pre}${idx + 1}. ${cur.getSchema()}\n`, '')
-  }
-
-  constructToolNames(): string {
-    return this.tools.map(val => val.name).join(',')
   }
 }
